@@ -1,31 +1,33 @@
 "use client"
 import { authClient } from "@/lib/auth-client";
-import { Check } from "@gravity-ui/icons";
-import { Button, Description, FieldError, Form, Input, Label, TextField } from "@heroui/react";
+import { Check, Eye, EyeSlash } from "@gravity-ui/icons";
+import { Button, FieldError, Form, Input, InputGroup, Label, TextField } from "@heroui/react";
+import { useState } from "react";
 
 const SignInpage = () => {
-     const onSubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const userData = Object.fromEntries(formData.entries())
-            console.log("form submit with: ", userData);
+    const [isVisible, setIsVisible] = useState(false);
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const userData = Object.fromEntries(formData.entries())
+        console.log("form submit with: ", userData);
 
-            const {data, error} = await authClient.signIn.email({
-                email: userData.email,
-                password: userData.password,
-                rememberMe: true,
-                callbackURL: "/"
-            })
-            console.log("sign in response: ", {data, error});
-            
-            
-        };
+        const { data, error } = await authClient.signIn.email({
+            email: userData.email,
+            password: userData.password,
+            rememberMe: true,
+            callbackURL: "/"
+        })
+        console.log("sign in response: ", { data, error });
+
+
+    };
     return (
         <div className="w-5/12 mx-auto mt-10">
             <h2>Please Sign In</h2>
             <div>
-             <Form className="flex w-96 flex-col gap-4" onSubmit={onSubmit}>
-            
+                <Form className="flex w-96 flex-col gap-4" onSubmit={onSubmit}>
+
                     {/* email */}
                     <TextField
                         isRequired
@@ -39,31 +41,30 @@ const SignInpage = () => {
                         }}
                     >
                         <Label>Email</Label>
-                        <Input placeholder="john@example.com" />
+                        <Input placeholder="Enter the Email" />
                         <FieldError />
                     </TextField>
-                    <TextField
-                        isRequired
-                        minLength={8}
-                        name="password"
-                        type="password"
-                        validate={(value) => {
-                            if (value.length < 8) {
-                                return "Password must be at least 8 characters";
-                            }
-                            if (!/[A-Z]/.test(value)) {
-                                return "Password must contain at least one uppercase letter";
-                            }
-                            if (!/[0-9]/.test(value)) {
-                                return "Password must contain at least one number";
-                            }
-                            return null;
-                        }}
-                    >
+                    {/* password */}
+                    <TextField className="w-full " name="password">
                         <Label>Password</Label>
-                        <Input placeholder="Enter your password" />
-                        <Description>Must be at least 8 characters with 1 uppercase and 1 number</Description>
-                        <FieldError />
+                        <InputGroup>
+                            <InputGroup.Input
+                                className="w-full"
+                                type={isVisible ? "text" : "password"}
+                                placeholder="Enter Your Password"
+                            />
+                            <InputGroup.Suffix className="pe-0">
+                                <Button
+                                    isIconOnly
+                                    aria-label={isVisible ? "Hide password" : "Show password"}
+                                    size="sm"
+                                    variant="ghost"
+                                    onPress={() => setIsVisible(!isVisible)}
+                                >
+                                    {isVisible ? <Eye className="size-4" /> : <EyeSlash className="size-4" />}
+                                </Button>
+                            </InputGroup.Suffix>
+                        </InputGroup>
                     </TextField>
                     <div className="flex gap-2">
                         <Button type="submit">
@@ -74,7 +75,7 @@ const SignInpage = () => {
                             Reset
                         </Button>
                     </div>
-                </Form>   
+                </Form>
             </div>
         </div>
     );
